@@ -2,12 +2,9 @@ use std::{
     collections::VecDeque,
     fs::File,
     io::{BufWriter, Write, stdin, stdout},
-    ptr::null_mut,
     sync::mpsc,
     thread,
 };
-
-use windows_sys::Win32::System::Com::{COINIT_APARTMENTTHREADED, CoInitializeEx};
 
 const CHUNK_SIZE: usize = 4096;
 
@@ -20,7 +17,8 @@ fn main() {
         input.trim().parse().unwrap()
     };
 
-    unsafe { CoInitializeEx(null_mut(), COINIT_APARTMENTTHREADED as u32) };
+    wasapi::initialize_sta().unwrap();
+
     let mut client = wasapi::AudioClient::new_application_loopback_client(pid, true).unwrap();
 
     let wavefmt = wasapi::WaveFormat::new(32, 32, wasapi::SampleType::Float, 44_100, 2, None);
